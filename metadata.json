@@ -1,0 +1,8 @@
+{
+  "name": "Lyra CRM",
+  "description": "Futuristic enterprise-grade Repair Shop CRM with Kanban, QR tracking, and RBAC.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
