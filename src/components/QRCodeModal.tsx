@@ -33,15 +33,16 @@ export function QRCodeModal({ isOpen, onClose, ticket }: QRCodeModalProps) {
             <div className="p-8 flex flex-col items-center justify-center space-y-6">
               <div className="bg-white p-4 rounded-xl">
                 <QRCodeCanvas 
-                  value={JSON.stringify({ id: ticket.id, device: ticket.device })}
+                  value={JSON.stringify({ id: ticket.id, device: ticket.device, serial: ticket.serial })}
                   size={200}
                   level="H"
                   includeMargin={false}
                 />
               </div>
-              <div className="text-center space-y-1">
+              <div className="text-center space-y-1 mt-6">
                 <p className="text-zinc-100 font-medium">{ticket.device}</p>
-                <p className="text-zinc-500 text-sm font-mono">{ticket.id.toUpperCase()}</p>
+                {ticket.serial && <p className="text-zinc-400 text-xs font-mono tracking-widest uppercase">SN: {ticket.serial}</p>}
+                <p className="text-zinc-500 text-xs font-mono tracking-widest mt-2">{ticket.id.toUpperCase()}</p>
               </div>
             </div>
             

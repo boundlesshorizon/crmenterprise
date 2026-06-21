@@ -15,6 +15,7 @@ export interface Ticket {
   id: string;
   customerId: string;
   device: string;
+  serial?: string;
   issue: string;
   status: TicketStatus;
   notes: string;

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { useStore } from '../store';
 import { TicketStatus, Ticket } from '../types';
-import { QrCode, Clock, MessageSquare, Wrench } from 'lucide-react';
+import { QrCode, Clock, MessageSquare, Edit2, Trash2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '../utils';
 
@@ -10,12 +10,14 @@ const COLUMNS: TicketStatus[] = ['Intake', 'Diagnostics', 'Waiting on Parts', 'R
 
 interface KanbanBoardProps {
   onOpenQR: (ticket: Ticket) => void;
+  onEditTicket: (ticket: Ticket) => void;
 }
 
-export function KanbanBoard({ onOpenQR }: KanbanBoardProps) {
+export function KanbanBoard({ onOpenQR, onEditTicket }: KanbanBoardProps) {
   const tickets = useStore(state => state.tickets);
   const customers = useStore(state => state.customers);
   const updateTicketStatus = useStore(state => state.updateTicketStatus);
+  const deleteTicket = useStore(state => state.deleteTicket);
   const role = useStore(state => state.role);
   const updateTicketNotes = useStore(state => state.updateTicketNotes);
 
@@ -103,17 +105,40 @@ export function KanbanBoard({ onOpenQR }: KanbanBoardProps) {
                                   </div>
                                   <p className="font-medium text-zinc-100 text-xs leading-tight">{customer?.name}</p>
                                 </div>
-                                <button
-                                  onClick={() => onOpenQR(ticket)}
-                                  className="text-zinc-500 hover:text-blue-400 transition-colors pb-1 pl-1"
-                                  title="Tracking QR"
-                                >
-                                  <QrCode className="w-3.5 h-3.5" />
-                                </button>
+                                <div className="flex items-center">
+                                  {role !== 'FrontDesk' && (
+                                    <>
+                                      <button
+                                        onClick={() => onEditTicket(ticket)}
+                                        className="text-zinc-500 hover:text-blue-400 transition-colors pb-1 px-1"
+                                        title="Edit Ticket"
+                                      >
+                                        <Edit2 className="w-3.5 h-3.5" />
+                                      </button>
+                                      {role === 'Admin' && (
+                                        <button
+                                          onClick={() => window.confirm('Delete ticket?') && deleteTicket(ticket.id)}
+                                          className="text-zinc-500 hover:text-red-400 transition-colors pb-1 px-1"
+                                          title="Delete Ticket"
+                                        >
+                                          <Trash2 className="w-3.5 h-3.5" />
+                                        </button>
+                                      )}
+                                    </>
+                                  )}
+                                  <button
+                                    onClick={() => onOpenQR(ticket)}
+                                    className="text-zinc-500 hover:text-blue-400 transition-colors pb-1 pl-1"
+                                    title="Tracking QR"
+                                  >
+                                    <QrCode className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
                               </div>
 
                               <div>
                                 <div className="text-xs font-medium text-zinc-300">{ticket.device}</div>
+                                {ticket.serial && <div className="text-[10px] font-mono text-zinc-400 mt-1 uppercase tracking-wider">SN: {ticket.serial}</div>}
                                 <div className="text-[10px] text-zinc-500 mt-0.5 line-clamp-2">{ticket.issue}</div>
                               </div>
 

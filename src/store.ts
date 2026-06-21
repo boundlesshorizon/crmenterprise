@@ -22,8 +22,13 @@ interface AppState {
   customers: Customer[];
   tickets: Ticket[];
   addTicket: (ticket: Omit<Ticket, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  updateTicket: (ticketId: string, ticket: Partial<Ticket>) => void;
+  deleteTicket: (ticketId: string) => void;
   updateTicketStatus: (ticketId: string, status: TicketStatus) => void;
   updateTicketNotes: (ticketId: string, notes: string) => void;
+  addCustomer: (customer: Omit<Customer, 'id' | 'ltv'>) => void;
+  updateCustomer: (id: string, customer: Partial<Customer>) => void;
+  deleteCustomer: (id: string) => void;
   addNotice: (msg: string) => void;
   notices: { id: string; msg: string; time: string }[];
 }
@@ -49,6 +54,23 @@ export const useStore = create<AppState>()(
         };
         return { tickets: [...state.tickets, newTicket] };
       }),
+      updateTicket: (ticketId, data) => set((state) => ({
+        tickets: state.tickets.map(t => t.id === ticketId ? { ...t, ...data, updatedAt: new Date().toISOString() } : t)
+      })),
+      deleteTicket: (ticketId) => set((state) => ({
+        tickets: state.tickets.filter(t => t.id !== ticketId)
+      })),
+      addCustomer: (customerData) => set((state) => {
+        const id = Math.random().toString(36).substring(2, 9);
+        return { customers: [...state.customers, { ...customerData, id, ltv: 0 }] };
+      }),
+      updateCustomer: (id, data) => set((state) => ({
+        customers: state.customers.map(c => c.id === id ? { ...c, ...data } : c)
+      })),
+      deleteCustomer: (id) => set((state) => ({
+        customers: state.customers.filter(c => c.id !== id),
+        tickets: state.tickets.filter(t => t.customerId !== id)
+      })),
       updateTicketStatus: (ticketId, status) => set((state) => {
         const ticket = state.tickets.find(t => t.id === ticketId);
         const customer = state.customers.find(c => c.id === ticket?.customerId);

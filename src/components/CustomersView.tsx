@@ -1,9 +1,26 @@
+import { useState } from 'react';
 import { useStore } from '../store';
 import { Customer } from '../types';
-import { Building2, User, Phone, Mail, DollarSign } from 'lucide-react';
+import { Building2, User, Phone, Mail, DollarSign, Edit2, Trash2 } from 'lucide-react';
+import { CustomerModal } from './CustomerModal';
 
 export function CustomersView() {
   const customers = useStore(state => state.customers);
+  const deleteCustomer = useStore(state => state.deleteCustomer);
+  const role = useStore(state => state.role);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingCustomer, setEditingCustomer] = useState<Customer | undefined>(undefined);
+
+  const openNewCustomer = () => {
+    setEditingCustomer(undefined);
+    setIsModalOpen(true);
+  };
+
+  const openEditCustomer = (customer: Customer) => {
+    setEditingCustomer(customer);
+    setIsModalOpen(true);
+  };
 
   return (
     <div className="w-full">
@@ -12,7 +29,10 @@ export function CustomersView() {
           <h2 className="text-2xl font-semibold text-zinc-100 tracking-tight">Client Database</h2>
           <p className="text-sm text-zinc-500 mt-1">Manage corporate accounts and individuals.</p>
         </div>
-        <button className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-full text-sm font-semibold transition-colors">
+        <button 
+          onClick={openNewCustomer}
+          className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-full text-sm font-semibold transition-colors"
+        >
           New Client
         </button>
       </div>
@@ -30,6 +50,22 @@ export function CustomersView() {
                   <span className="text-[10px] font-mono tracking-wider text-zinc-500 uppercase">{customer.type}</span>
                 </div>
               </div>
+              {role === 'Admin' && (
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={() => openEditCustomer(customer)}
+                    className="p-1.5 text-zinc-500 hover:text-blue-400 hover:bg-zinc-800 rounded-lg transition-colors"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                  <button 
+                    onClick={() => window.confirm('Delete client and all their tickets?') && deleteCustomer(customer.id)}
+                    className="p-1.5 text-zinc-500 hover:text-red-400 hover:bg-zinc-800 rounded-lg transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="space-y-3 mb-6 flex-1">
@@ -53,6 +89,12 @@ export function CustomersView() {
           </div>
         ))}
       </div>
+      
+      <CustomerModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        customer={editingCustomer}
+      />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { KanbanBoard } from './components/KanbanBoard';
 import { CustomersView } from './components/CustomersView';
 import { AnalyticsView } from './components/AnalyticsView';
 import { QRCodeModal } from './components/QRCodeModal';
+import { TicketModal } from './components/TicketModal';
 import { cn } from './utils';
 import { 
   MonitorSmartphone, 
@@ -13,7 +14,8 @@ import {
   BarChart3, 
   Bell, 
   ShieldAlert,
-  TerminalSquare
+  TerminalSquare,
+  Plus
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 
@@ -26,6 +28,19 @@ export default function App() {
   
   const [activeTab, setActiveTab] = useState<Tab>('Board');
   const [qrTicket, setQrTicket] = useState<Ticket | null>(null);
+  
+  const [isTicketModalOpen, setIsTicketModalOpen] = useState(false);
+  const [editingTicket, setEditingTicket] = useState<Ticket | undefined>(undefined);
+
+  const openNewTicket = () => {
+    setEditingTicket(undefined);
+    setIsTicketModalOpen(true);
+  };
+
+  const openEditTicket = (ticket: Ticket) => {
+    setEditingTicket(ticket);
+    setIsTicketModalOpen(true);
+  };
 
   return (
     <div className="min-h-screen bg-[#09090b] text-zinc-50 flex overflow-hidden selection:bg-blue-500/30">
@@ -94,6 +109,12 @@ export default function App() {
           </div>
           
           <div className="flex items-center gap-4">
+            <button 
+              onClick={openNewTicket}
+              className="hidden sm:flex bg-blue-600 hover:bg-blue-500 text-sm font-semibold px-5 py-2 rounded-full items-center gap-2 transition-colors mr-2"
+            >
+              <Plus className="w-4 h-4" /> New Ticket
+            </button>
             <button className="text-zinc-500 hover:text-zinc-300 transition-colors relative">
                <Bell className="w-5 h-5" />
                {notices.length > 0 && <span className="absolute top-0 right-0 w-2 h-2 bg-blue-500 rounded-full animate-pulse" />}
@@ -107,7 +128,7 @@ export default function App() {
         {/* Scrollable View Area */}
         <div className="flex-1 overflow-auto bg-[#09090b]">
           <div className="p-6 md:p-10 max-w-[1600px] mx-auto h-full">
-            {activeTab === 'Board' && <KanbanBoard onOpenQR={setQrTicket} />}
+            {activeTab === 'Board' && <KanbanBoard onOpenQR={setQrTicket} onEditTicket={openEditTicket} />}
             {activeTab === 'Clients' && <CustomersView />}
             {activeTab === 'Analytics' && <AnalyticsView />}
           </div>
@@ -136,6 +157,11 @@ export default function App() {
         isOpen={!!qrTicket} 
         onClose={() => setQrTicket(null)} 
         ticket={qrTicket} 
+      />
+      <TicketModal
+        isOpen={isTicketModalOpen}
+        onClose={() => setIsTicketModalOpen(false)}
+        ticket={editingTicket}
       />
     </div>
   );
